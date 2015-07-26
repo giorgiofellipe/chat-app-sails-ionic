@@ -34,8 +34,11 @@ module.exports.policies = {
 
   'auth': {
     '*': true
-  }
+  },
 
+  'chat': {
+    '*': true
+  }
   /***************************************************************************
   *                                                                          *
   * Here's an example of mapping some policies to run before a controller    *
