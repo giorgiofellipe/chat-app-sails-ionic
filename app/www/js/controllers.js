@@ -1,4 +1,4 @@
-angular.module('starter.controllers', [])
+angular.module('starter.controllers', ['btford.socket-io'])
 
 .controller('DashCtrl', function($scope) {})
 
