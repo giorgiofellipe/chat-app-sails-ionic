@@ -41,6 +41,7 @@ module.exports.routes = {
         controller: 'home',
         action: 'index'
     },
+    '/login': 'AuthController.login',
     '/auth/loginapp': 'AuthController.loginApp',
     '/auth/signupapp': 'AuthController.signupApp'
 
