@@ -1,4 +1,4 @@
-angular.module('starter.controllers', ['btford.socket-io'])
+angular.module('starter.controllers', ['ngSails'])
 
 .controller('DashCtrl', function($scope) {})
 
@@ -40,46 +40,57 @@ angular.module('starter.controllers', ['btford.socket-io'])
   };
 })
 
-.controller('ChatController', function($scope, $stateParams, $http, socket, $ionicScrollDelegate) {
+.controller('ChatController', function($scope, $rootScope, $stateParams, $http, $sails, $ionicScrollDelegate, $ionicPlatform) {
   $scope.messages = [];
 
-  socket.on('connect',function(){
-    //Add user called nickname
-    socket.emit('add user', $scope.user.name);
+  $sails.get('/chat/addMessage/');
+  $sails.on('chat', function(obj){
+    console.log(obj);
+    //Check whether the verb is created or not
+    if(obj.verb === 'created') {
+      var username = null;
+      console.log('/user?id='+obj.data.user);
+      $sails.get('/user?id='+obj.data.user)
+      .success(function (data, status, headers, jwr) {
+        username = data.name;
+        addMessageToList(username, true, obj.data.message);
+      })
+      .error(function (data, status, headers, jwr) {
+        console.log(data, status, headers, jwr);
+      });
+    }
   });
-  socket.on('new message', function (data) {
+
+  $sails.on('connect',function(){
+    //Add user called nickname
+    $sails._raw.emit('add user', $scope.user.name);
+  });
+  $sails.on('new message', function (data) {
     addMessageToList(data.username, true, data.message)
   });
 
   //function called when user hits the send button
   $scope.sendMessage = function() {
     console.log('post message');
-    $http.post('http://localhost:1337/chat', {message: $scope.message, time: new Date()})
-    .success(function(data, status, headers, config) {
-      socket.emit('new message', data);
-    })
-    .error(function(data, status, headers, config) {
-
-    });
-    addMessageToList($stateParams.nickname, true, $scope.message)
-    socket.emit('stop typing');
+    $sails.post('/chat/addMessage/',{message: $scope.message, time: new Date(), user: $rootScope.user.id});
+    $sails._raw.emit('stop typing');
+    $scope.message = "";
   }
 
 
   function addMessageToList(username, style_type, message){
-    // username = $sanitize(username) //The input is sanitized For more info read this link
-    $scope.messages.push({content: message,style:style_type,username:username})  // Push the messages to the messages list.
+    $scope.messages.push({content: message, style:style_type, username:username})  // Push the messages to the messages list.
     $ionicScrollDelegate.scrollBottom(); // Scroll to bottom to read the latest
   }
 
   // Whenever the server emits 'user joined', log it in the chat body
-  socket.on('user joined', function (data) {
-    addMessageToList("",false,data.username + " joined")
-    addMessageToList("",false,message_string(data.numUsers)) 
+  $sails.on('user joined', function (data) {
+    addMessageToList("", false, data.username + " joined")
+    addMessageToList("", false, message_string(data.numUsers)) 
   });
 
   // Whenever the server emits 'user left', log it in the chat body
-  socket.on('user left', function (data) {
+  $sails.on('user left', function (data) {
     addMessageToList("",false,data.username+" left")
     addMessageToList("",false,message_string(data.numUsers))
   });
