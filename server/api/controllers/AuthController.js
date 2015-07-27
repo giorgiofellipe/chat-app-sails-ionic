@@ -105,6 +105,35 @@ module.exports = {
             return res.view();
         }
     },
+    signupApp: function (req, res) {
+        var fFullName = req.param("fullName");
+        var fEmail = req.param("email");
+        var fPassword = req.param("password");
+        console.log(fFullName, fEmail, fPassword);
+
+        if (fFullName && fEmail && fPassword) {
+            console.log("+ AUTH.SIGNUP", fFullName, fEmail, fPassword);
+            var user = {
+                provider: "local",
+                name: fFullName,
+                email: fEmail,
+                password: User.generateHash(fPassword),
+                uid: uuid.v4()
+            };
+            User.create(user).exec(function (err, model) {
+                console.log("USER updated");
+                if (err) {
+                    res.status(404);
+                    return res.json({error: true, message: err});
+                }
+                return res.json(model);
+            });
+        } else {
+            res.status(404);
+            console.log("+ AUTH.SIGNUP (new user)");
+            return res.json({error: true, message: 'some field is empty'});
+        }
+    },
 
     // Logout screen
     logout: function (req, res) {

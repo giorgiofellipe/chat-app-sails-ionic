@@ -23,7 +23,14 @@ angular.module('starter.controllers', ['btford.socket-io'])
     });
   };
   $scope.signUp = function() {
-
+    console.log({fullName: $scope.username, email: $scope.email, password: $scope.password});
+    $http.post('http://localhost:1337/auth/signupApp', {fullName: $scope.username, email: $scope.email, password: $scope.password})
+    .success(function(data, status, headers, config) {
+      $scope.login();
+    })
+    .error(function(data, status, headers, config) {
+      console.log('error', status, data);
+    });
   };
   $scope.signUpUI = function() {
     $state.go('signup');
