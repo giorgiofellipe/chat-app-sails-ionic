@@ -2,12 +2,43 @@ angular.module('starter.controllers', ['btford.socket-io'])
 
 .controller('DashCtrl', function($scope) {})
 
+.controller('LoginController', function($scope, $rootScope, $state, $ionicPlatform, $http) {
+  $scope.login = function() {
+    $http.post('http://localhost:1337/auth/loginApp', {username: $scope.email, password: $scope.password})
+    .success(function(data, status, headers, config) {
+      $rootScope.user = data;
+      $state.go('tab.dash');
+    })
+    .error(function(data, status, headers, config) {
+      console.log('error', status, data);
+    });
+  };
+  $scope.loginFB = function() {
+    $http.get('http://localhost:1337/auth/facebook', {})
+    .success(function(data, status, headers, config) {
+      console.log('success', status, data);
+    })
+    .error(function(data, status, headers, config) {
+      console.log('error', status, data);
+    });
+  };
+  $scope.signUp = function() {
+
+  };
+  $scope.signUpUI = function() {
+    $state.go('signup');
+  };
+  $scope.loginUI = function() {
+    $state.go('login');
+  };
+})
+
 .controller('ChatController', function($scope, $stateParams, $http, socket, $ionicScrollDelegate) {
   $scope.messages = [];
 
   socket.on('connect',function(){
     //Add user called nickname
-    socket.emit('add user',$scope.user.name);
+    socket.emit('add user', $scope.user.name);
   });
   socket.on('new message', function (data) {
     addMessageToList(data.username, true, data.message)
@@ -16,11 +47,11 @@ angular.module('starter.controllers', ['btford.socket-io'])
   //function called when user hits the send button
   $scope.sendMessage = function() {
     console.log('post message');
-    $http.post('http://localhost:1337/chat', {message: $scope.message, time: new Date()}).
-    success(function(data, status, headers, config) {
+    $http.post('http://localhost:1337/chat', {message: $scope.message, time: new Date()})
+    .success(function(data, status, headers, config) {
       socket.emit('new message', data);
-    }).
-    error(function(data, status, headers, config) {
+    })
+    .error(function(data, status, headers, config) {
 
     });
     addMessageToList($stateParams.nickname, true, $scope.message)

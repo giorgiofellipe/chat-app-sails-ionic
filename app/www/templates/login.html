@@ -1,0 +1,15 @@
+<ion-modal-view class="padding">
+  <div class="card">
+    <label class="item item-input">
+      <span class="input-label">Email</span>
+      <input type="email" ng-model="email" id="inputUsername" placeholder="Email"/>
+    </label>
+    <label class="item item-input">
+      <span class="input-label">Password</span>
+      <input type="password" ng-model="password" id="inputPassword" placeholder="Password"/>
+    </label>
+  </div>
+  <button class="button button-block button-balanced" ng-click="login()">Log in</button>
+  <button class="button button-block button-positive" ng-click="loginFB()">Log in with Facebook</button>
+  <button class="button button-block button-stable" ng-click="signUpUI()">Register</button>
+</ion-modal-view>
