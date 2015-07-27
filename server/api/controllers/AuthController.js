@@ -67,6 +67,9 @@ module.exports = {
                             res.status(404);
                             res.json({error: true, message: err, user: user});
                         }
+                        if (req.isSocket) {
+                            req.socket.emit('user joined', user);
+                        }
                         res.json(user);
                     });
                 } else {
@@ -140,6 +143,14 @@ module.exports = {
         console.log("+ AUTH.LOGOUT");
         req.logout();
         return res.redirect('/');
+    },
+    logoutApp: function (req, res) {
+        console.log("+ AUTH.LOGOUT");
+        req.logout();        
+        if (req.isSocket) {
+            req.socket.emit('user left', user);
+        }    
+        return res.json(true);
     },
 
     // Twitter login screen
