@@ -120,10 +120,13 @@ module.exports.sockets = {
   * disconnects                                                              *
   *                                                                          *
   ***************************************************************************/
-  // afterDisconnect: function(session, socket, cb) {
-  //   // By default: do nothing.
-  //   return cb();
-  // },
+  afterDisconnect: function(session, socket, cb) {
+    var subscribers = sails.sockets.subscribers('');
+    //TODO: identify user disconnected
+    sails.sockets.broadcast('', 'user_left', {user: null, numUsers: subscribers.length});
+    // By default: do nothing.
+    return cb();
+  },
 
 
 

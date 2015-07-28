@@ -74,16 +74,18 @@ angular.module('starter.controllers', ['ngSails'])
 
     // Whenever the server emits 'user joined', log it in the chat body
     $sails.on('user_joined', function (data) {
-      if (data.user.name != $rootScope.user.name) {
+      if (data.user && (data.user.name != $rootScope.user.name)) {
         addMessageToList("", false, data.user.name + " joined");
-        $scope.peopleQtyMessage = message_string(data.numUsers);
       }
+      $scope.peopleQtyMessage = message_string(data.numUsers);
     });
 
     // Whenever the server emits 'user left', log it in the chat body
     $sails.on('user_left', function (data) {
-      addMessageToList("", false, data.name +" left")
-      addMessageToList("", false, message_string(data.numUsers))
+      if (data.user && (data.user.name != $rootScope.user.name)) {
+        addMessageToList("", false, data.name +" left")
+      }
+      $scope.peopleQtyMessage = message_string(data.numUsers);
     });
 
     //Whenever the server emits 'typing', show the typing message
