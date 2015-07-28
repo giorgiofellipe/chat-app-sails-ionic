@@ -65,16 +65,16 @@ module.exports = {
                         if (err) {
                             console.log("AUTH Error", err);
                             res.status(404);
-                            res.json({error: true, message: err, user: user});
+                            return res.json({error: true, message: err, user: user});
                         }
                         if (req.isSocket) {
-                            req.socket.emit('user joined', user);
+                            req.socket.emit('user_joined', user);
                         }
-                        res.json(user);
+                        return res.json(user);
                     });
                 } else {
                     res.status(404);
-                    res.json({error: true, message: err, user: user});
+                    // res.json({error: true, message: err, user: user});
                 }
             })(req, res);
         } else {
