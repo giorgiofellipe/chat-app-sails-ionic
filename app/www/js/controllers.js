@@ -40,60 +40,75 @@ angular.module('starter.controllers', ['ngSails'])
   };
 })
 
-.controller('ChatController', function($scope, $rootScope, $stateParams, $http, $sails, $ionicScrollDelegate, $ionicPlatform) {
+.controller('ChatController', function($scope, $rootScope, $stateParams, $sails, $ionicScrollDelegate, $ionicPlatform) {
   $scope.messages = [];
+  $scope.connected = true
 
-  $sails.get('/chat/addMessage/');
-  $sails.on('chat', function(obj){
-    console.log(obj);
-    //Check whether the verb is created or not
-    if(obj.verb === 'created') {
-      var username = null;
-      console.log('/user?id='+obj.data.user);
-      $sails.get('/user?id='+obj.data.user)
-      .success(function (data, status, headers, jwr) {
-        username = data.name;
-        addMessageToList(username, true, obj.data.message);
-      })
-      .error(function (data, status, headers, jwr) {
-        console.log(data, status, headers, jwr);
-      });
-    }
-  });
+  $sails.get('/chat/addMessage/', {user: $rootScope.user});
 
-  $sails.on('connect',function(){
-    //Add user called nickname
-    $sails._raw.emit('add user', $scope.user.name);
-  });
-  $sails.on('new message', function (data) {
-    addMessageToList(data.username, true, data.message)
-  });
+  $sails.on('connect',function() {
 
+    $sails.on('chat', function(obj){
+      console.log(obj);
+      //Check whether the verb is created or not
+      if(obj.verb === 'created') {
+        var username = null;
+        console.log('/user?id='+obj.data.user);
+        $sails.get('/user?id='+obj.data.user)
+        .success(function (data, status, headers, jwr) {
+          username = data.name;
+          addMessageToList(username, true, obj.data.message);
+        })
+        .error(function (data, status, headers, jwr) {
+          console.log(data, status, headers, jwr);
+        });
+      }
+    });
+
+    // On login display welcome message
+    $sails.on('login', function (data) {
+      //Set the value of connected flag
+      $scope.connected = true
+      $scope.peopleQtyMessage = message_string(data.numUsers);
+    });
+
+    // Whenever the server emits 'user joined', log it in the chat body
+    $sails.on('user_joined', function (data) {
+      if (data.user.name != $rootScope.user.name) {
+        addMessageToList("", false, data.user.name + " joined");
+        $scope.peopleQtyMessage = message_string(data.numUsers);
+      }
+    });
+
+    // Whenever the server emits 'user left', log it in the chat body
+    $sails.on('user_left', function (data) {
+      addMessageToList("", false, data.name +" left")
+      addMessageToList("", false, message_string(data.numUsers))
+    });
+
+    //Whenever the server emits 'typing', show the typing message
+    $sails.on('typing', function (data) {
+      addChatTyping(data);
+    });
+
+    // Whenever the server emits 'stop typing', kill the typing message
+    $sails.on('stop_typing', function (data) {
+      removeChatTyping(data.name);
+    }); 
+  })
   //function called when user hits the send button
   $scope.sendMessage = function() {
-    console.log('post message');
-    $sails.post('/chat/addMessage/',{message: $scope.message, time: new Date(), user: $rootScope.user.id});
-    $sails._raw.emit('stop typing');
-    $scope.message = "";
+    if ($scope.message) {
+      $sails.post('/chat/addMessage/',{message: $scope.message, time: new Date(), user: $rootScope.user.id});
+      $sails._raw.emit('stop typing');
+      $scope.message = "";
+    }
   }
-
 
   function addMessageToList(username, style_type, message){
     $scope.messages.push({content: message, style:style_type, username:username})  // Push the messages to the messages list.
     $ionicScrollDelegate.scrollBottom(); // Scroll to bottom to read the latest
   }
-
-  // Whenever the server emits 'user joined', log it in the chat body
-  $sails.on('user joined', function (data) {
-    addMessageToList("", false, data.username + " joined")
-    addMessageToList("", false, message_string(data.numUsers)) 
-  });
-
-  // Whenever the server emits 'user left', log it in the chat body
-  $sails.on('user left', function (data) {
-    addMessageToList("",false,data.username+" left")
-    addMessageToList("",false,message_string(data.numUsers))
-  });
 
   // Return message string depending on the number of users
   function message_string(number_of_users) {

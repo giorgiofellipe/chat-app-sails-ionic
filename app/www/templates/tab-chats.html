@@ -1,4 +1,4 @@
-<ion-view view-title="Chat" ng-controller="ChatController" class="light-grey">
+<ion-view view-title="Chat" class="light-grey">
    <ion-nav-bar class="bar-dark">
     <ion-nav-buttons side="right">
       <button class="button button-clear icon ion-android-more-vertical right8" ng-click="openPopover($event)">
@@ -6,25 +6,43 @@
     </ion-nav-buttons>
    </ion-nav-bar>
    <ion-content has-bouncing="true" class="content">
-    <div ng-show="chatCtrl.connected">
-       <div class="log pad2">"Welcome to Socket.IO Chat – ";</div>
-       <div class="log">{{chatCtrl.number_message}}</div>
+    <div ng-show="connected">
+       <div class="log">{{peopleQtyMessage}}</div>
     </div>
-    <div>
-      <ul>
-          <li ng-class="{'message':message.style,'log':!message.style}"  ng-repeat="message in messages" >
-              <span ng-show="message.style" ng-style="{color:message.color}" >{{message.username}} : </span >{{message.content}}
-          </li>
-      </ul>
+    <div ng-repeat="message in messages" class="message-wrapper disable-user-behavior">
+      <div ng-if="message.style == false" class="log">{{message.content}}</div>
+      <div ng-if="user.name !== message.username && message.style != false">
+        <img ng-src="img/avatar.png" 
+             class="profile-pic left" >
+        <div class="chat-bubble left">
+          <div class="message ng-binding">{{message.content}}</div>
+          <div class="message-detail">
+            <span ng-click="viewProfile(chat)" class="bold ng-binding">{{message.username}}</span>
+            <span>{{message.createdAt}}</span>
+          </div>
+        </div>
+      </div>
+      <div ng-if="user.name === message.username && message.style != false">
+        <img ng-src="img/avatar.png" 
+             class="profile-pic right" >
+        <div class="chat-bubble right">
+          <div class="message ng-binding">{{message.content}}</div>
+          <div class="message-detail">
+            <span ng-click="viewProfile(chat)" class="bold ng-binding">{{message.username}}</span>
+            <span>{{message.createdAt}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="cf"></div>
     </div>
   </ion-content>
-  <div class="list light-grey bottommsg">
+  <div class="list light-grey form-message">
       <div class="item item-input-inset light-grey">
         <label  class="item-input-wrapper line-light-grey nopadtop">
-          <input class="line-light-grey" ng-change="updateTyping()" type="text"  placeholder="Message" ng-enter="chatCtrl.sendMessage()" ng-model="message"> 
+          <input class="line-light-grey" ng-change="updateTyping()" type="text"  placeholder="Message" ng-enter="sendMessage()" ng-model="message"> 
         </label>
         <div class="divsend">
-              <button class="button button-clear ion-android-send iconsend" ng-click="sendMessage()"></button>
+          <button class="button button-clear ion-android-send icon-send" ng-click="sendMessage()"></button>
         </div>
       </div>
   </div>     
