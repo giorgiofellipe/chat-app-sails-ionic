@@ -107,7 +107,8 @@ angular.module('starter.controllers', ['ngSails'])
 
   function addMessageToList(username, style_type, message){
     $scope.messages.push({content: message, style:style_type, username:username})  // Push the messages to the messages list.
-    $ionicScrollDelegate.scrollBottom(); // Scroll to bottom to read the latest
+    $ionicScrollDelegate.resize();
+    $ionicScrollDelegate.scrollBottom(true); // Scroll to bottom to read the latest
   }
 
   // Return message string depending on the number of users
