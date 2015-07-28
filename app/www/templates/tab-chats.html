@@ -12,7 +12,7 @@
     <div ng-repeat="message in messages" class="message-wrapper disable-user-behavior">
       <div ng-if="message.style == false" class="log">{{message.content}}</div>
       <div ng-if="user.name !== message.username && message.style != false">
-        <img ng-src="img/avatar.png" 
+        <img ng-src="img/avatar.jpg" 
              class="profile-pic left" >
         <div class="chat-bubble left">
           <div class="message ng-binding">{{message.content}}</div>
@@ -23,7 +23,7 @@
         </div>
       </div>
       <div ng-if="user.name === message.username && message.style != false">
-        <img ng-src="img/avatar.png" 
+        <img ng-src="img/avatar.jpg" 
              class="profile-pic right" >
         <div class="chat-bubble right">
           <div class="message ng-binding">{{message.content}}</div>
